@@ -157,8 +157,8 @@ public class FarBlueAuto extends LinearOpMode{
         configurePinpoint();
 
         // Set startX, startY, startTheta to use for reference later
-        setStartX(0.5*halfTileMat);
-        setStartY(4 * halfTileMat);
+        setStartX(2 * halfTileMat);
+        setStartY(12 * halfTileMat);
         setStartTheta(0); // Has to be zero
 
         // X and Y are switched: (1,0) = (0,1)
@@ -179,8 +179,29 @@ public class FarBlueAuto extends LinearOpMode{
         waitForStart();
 
         // Calls main run fxn
-        run();
+       // run();
         //LAUNCHER.setVelocity(-launcherVelocity);
+        while(opModeIsActive()){
+            //update pinpoint sensor
+            pinpoint.update();
+            // Get current position and heading
+            Pose2D robotCurPos = pinpoint.getPosition();
+            // Update robot variables
+            setRobotX(robotCurPos.getX(DistanceUnit.INCH));
+            setRobotY(robotCurPos.getY(DistanceUnit.INCH));
+            setRobotTheta(robotCurPos.getHeading(AngleUnit.DEGREES));
+            //display robot Telemtry
+            telemetry.addData("Robot X (in)", getRobotX());
+            telemetry.addData("Robot Y (in)", getRobotY());
+            telemetry.addData("Heading (deg)", getRobotTheta());
+
+            telemetry.addData("Pinpoint Status",
+                                pinpoint.getDeviceStatus());
+            telemetry.update();
+
+            sleep(50);
+
+        }
     }
 
     public void run(){
@@ -188,13 +209,7 @@ public class FarBlueAuto extends LinearOpMode{
         // Create a list of all coords you want the robot to move to during auto
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
-        append(coordinates, halfTileMat,5 * halfTileMat,25, 1);
-        append(coordinates, 2.5 * halfTileMat, 4 * halfTileMat,90, 0);
-        append(coordinates, 2.5 * halfTileMat, halfTileMat,90, 0);
-        append(coordinates, halfTileMat, 5 * halfTileMat,25, 1);
-        append(coordinates,  0.75*halfTileMat, halfTileMat,90, 0);
-        append(coordinates, halfTileMat, 5 * halfTileMat,25, 1);
-        append(coordinates, 3 * halfTileMat, 5 * halfTileMat,0, 0);
+        append(coordinates, 2 * halfTileMat,8 * halfTileMat,0, 0);
 
         for(int loop=0; loop<coordinates.size(); loop++) {
 
@@ -223,7 +238,7 @@ public class FarBlueAuto extends LinearOpMode{
             //pythagorean theorem
             setDistError(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
             setRotError(getRobotTheta()-getTargetTheta());
-  
+
             double distErrorThreshold = 0.5; // Inches
             double rotErrorThreshold = 1; // Degrees
 
