@@ -181,6 +181,33 @@ public class FarBlueAuto extends LinearOpMode{
         // Calls main run fxn
        // run();
         //LAUNCHER.setVelocity(-launcherVelocity);
+
+        //TEST ONLY
+        // Checking if the motors are attached the way the thought they would be
+        telemetry.addData("Front Left", 0.3);
+        telemetry.update();
+        FL.setPower(0.3);
+        sleep(1000);
+        setPowerToZero();
+
+        telemetry.addData("Front Right", 0.3);
+        telemetry.update();
+        FR.setPower(0.3);
+        sleep(1000);
+        setPowerToZero();
+
+        telemetry.addData("Back Left", 0.3);
+        telemetry.update();
+        BL.setPower(0.3);
+        sleep(1000);
+        setPowerToZero();
+
+        telemetry.addData("Back Right", 0.3);
+        telemetry.update();
+        BR.setPower(0.3);
+        sleep(1000);
+        setPowerToZero();
+
         while(opModeIsActive()){
             //update pinpoint sensor
             pinpoint.update();
@@ -221,17 +248,7 @@ public class FarBlueAuto extends LinearOpMode{
             setTargetY(-coordinates.get(loop).get(1));
             setTargetTheta(coordinates.get(loop).get(2));
 
-            // PID Vars
-            /*
-            double p = 1;
-            double i = 0;
-            double d = 1;
 
-            double Kp = 1.3;
-            double Ki = 0.2;
-            double Kd = 0.9;
-
-             */
             //math.sqrt = sqaure root
             //math.pow(x, y) = x^y
             //Setting initial errors to seed while loop with good values
@@ -288,7 +305,7 @@ public class FarBlueAuto extends LinearOpMode{
                 //Update pinpoint and query robot current position and velocity
                 pinpoint.update();
                 Pose2D robotCurPos = pinpoint.getPosition();
-                robotVelocity = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES);
+                robotVelocity = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES); //can use for PID
 
                 //Update robot current position
                 setRobotX(robotCurPos.getX(DistanceUnit.INCH));
@@ -297,12 +314,6 @@ public class FarBlueAuto extends LinearOpMode{
 
                 //Output critical values to track robot performance
                 grandTelemetryFunction(getDistError(), aTanVal, robotCurPos, robotVelocity);
-
-                if(getDistError() < 1){
-                    //TRANSFER.setPower(-0.5);
-                }else{
-                    //TRANSFER.setPower(0);
-                }
 
             }
             resetMotorVarPower();
@@ -319,6 +330,7 @@ public class FarBlueAuto extends LinearOpMode{
         //The fxns with "translationsAngle..." are just get and set angle
         // Math calculations for easier reading
         //double testAngle = 0;
+        //make sure translation vector angle is in radians
         double cosVal = Math.cos(getTranslationVectorAngle()) / Math.sqrt(2);
         double sinVal = Math.sin(getTranslationVectorAngle());
 
@@ -338,7 +350,7 @@ public class FarBlueAuto extends LinearOpMode{
     }
 
     public void normalizePower(){
-        double maxMotorThreshold = 0.75; // 50% motor power
+        double maxMotorThreshold = 0.50; // 50% motor power
         double maxMotor = Math.abs(Math.max(Math.max(Math.abs(getFR_power()), Math.abs(getFL_power())), Math.max(Math.abs(getBL_power()), Math.abs(getBR_power()))));
         if (maxMotor > maxMotorThreshold){
             setFL_power(getFL_power() / (maxMotor/maxMotorThreshold));
@@ -391,8 +403,8 @@ public class FarBlueAuto extends LinearOpMode{
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        pinpoint.setOffsets(-95, 5, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
-
+        pinpoint.setOffsets(50, 100, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+//5,-95
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
          * the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
