@@ -83,10 +83,10 @@ public class RobotAutoDriveByTime_Linear extends LinearOpMode {
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
-        fr.setDirection(DcMotor.Direction.FORWARD);
-        br.setDirection(DcMotor.Direction.FORWARD);
-        fl.setDirection(DcMotor.Direction.REVERSE);
-        bl.setDirection(DcMotor.Direction.REVERSE);
+        fr.setDirection(DcMotor.Direction.REVERSE);
+        br.setDirection(DcMotor.Direction.REVERSE);
+        fl.setDirection(DcMotor.Direction.FORWARD);
+        bl.setDirection(DcMotor.Direction.FORWARD);
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Ready to run");    //
@@ -96,7 +96,8 @@ public class RobotAutoDriveByTime_Linear extends LinearOpMode {
         waitForStart();
 
         // Step through each leg of the path, ensuring that the OpMode has not been stopped along the way.
-/*
+
+
         // Step 0: test all four motors
         runtime.reset();
         fl.setPower(FORWARD_SPEED);
@@ -121,9 +122,59 @@ public class RobotAutoDriveByTime_Linear extends LinearOpMode {
         while (opModeIsActive() && (runtime.seconds() < 1.0)) {
 
         }
-        br.setPower(0);*/
+        br.setPower(0);
+
+/*
 
         //Move to start assuming 0.5 sec = 1 tile
+        runtime.reset();
+        fl.setPower(-TURN_SPEED);
+        bl.setPower(-TURN_SPEED);
+        fr.setPower(TURN_SPEED);
+        br.setPower(TURN_SPEED);
+        while (opModeIsActive() && (runtime.seconds() < 0.3)) {
+
+        }
+        runtime.reset();
+        fl.setPower(0);
+        bl.setPower(0);
+        fr.setPower(0);
+        br.setPower(0);
+        while (opModeIsActive() && (runtime.seconds() < 0.3)) {
+
+        }
+        runtime.reset();
+        fr.setPower(FORWARD_SPEED);
+        fl.setPower(FORWARD_SPEED);
+        br.setPower(FORWARD_SPEED);
+        bl.setPower(FORWARD_SPEED);
+        while (opModeIsActive() && (runtime.seconds() < 1.4)) {
+
+        }
+        runtime.reset();
+        fl.setPower(0);
+        bl.setPower(0);
+        fr.setPower(0);
+        br.setPower(0);
+        while (opModeIsActive() && (runtime.seconds() < 0.3)) {
+
+        }
+        runtime.reset();
+        fl.setPower(TURN_SPEED);
+        bl.setPower(TURN_SPEED);
+        fr.setPower(-TURN_SPEED);
+        br.setPower(-TURN_SPEED);
+        while (opModeIsActive() && (runtime.seconds() < 0.6)) {
+
+        }
+        runtime.reset();
+        fl.setPower(0);
+        bl.setPower(0);
+        fr.setPower(0);
+        br.setPower(0);
+        while (opModeIsActive() && (runtime.seconds() < 0.3)) {
+
+        }
         runtime.reset();
         fr.setPower(FORWARD_SPEED);
         fl.setPower(FORWARD_SPEED);
@@ -136,6 +187,7 @@ public class RobotAutoDriveByTime_Linear extends LinearOpMode {
         fl.setPower(0);
         br.setPower(0);
         bl.setPower(0);
+*/
 
        /*
         // Step 1:  Drive forward for 3 seconds

@@ -157,8 +157,8 @@ public class FarBlueAuto extends LinearOpMode{
         configurePinpoint();
 
         // Set startX, startY, startTheta to use for reference later
-        setStartX(2 * halfTileMat);
-        setStartY(12 * halfTileMat);
+        setStartX(0 * halfTileMat);
+        setStartY(0 * halfTileMat);
         setStartTheta(0); // Has to be zero
 
         // X and Y are switched: (1,0) = (0,1)
@@ -177,36 +177,12 @@ public class FarBlueAuto extends LinearOpMode{
 
         // Wait for user to press run on DS
         waitForStart();
-
+        //testpinpoint();
         // Calls main run fxn
-       // run();
+        run();
         //LAUNCHER.setVelocity(-launcherVelocity);
 
-        //TEST ONLY
-        // Checking if the motors are attached the way the thought they would be
-        telemetry.addData("Front Left", 0.3);
-        telemetry.update();
-        FL.setPower(0.3);
-        sleep(1000);
-        setPowerToZero();
 
-        telemetry.addData("Front Right", 0.3);
-        telemetry.update();
-        FR.setPower(0.3);
-        sleep(1000);
-        setPowerToZero();
-
-        telemetry.addData("Back Left", 0.3);
-        telemetry.update();
-        BL.setPower(0.3);
-        sleep(1000);
-        setPowerToZero();
-
-        telemetry.addData("Back Right", 0.3);
-        telemetry.update();
-        BR.setPower(0.3);
-        sleep(1000);
-        setPowerToZero();
 
         while(opModeIsActive()){
             //update pinpoint sensor
@@ -236,7 +212,7 @@ public class FarBlueAuto extends LinearOpMode{
         // Create a list of all coords you want the robot to move to during auto
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
-        append(coordinates, 2 * halfTileMat,8 * halfTileMat,0, 0);
+        append(coordinates, 2 * halfTileMat,2 * halfTileMat,0, 0);
 
         for(int loop=0; loop<coordinates.size(); loop++) {
 
@@ -403,7 +379,7 @@ public class FarBlueAuto extends LinearOpMode{
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        pinpoint.setOffsets(50, 100, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+        pinpoint.setOffsets(-95, -150, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
 //5,-95
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -478,4 +454,32 @@ public class FarBlueAuto extends LinearOpMode{
         telemetry.update();
     }
 
+    public void testpinpoint()
+        {
+            //TEST ONLY
+            // Checking if the motors are attached the way the thought they would be
+            telemetry.addData("Front Left", 0.3);
+            telemetry.update();
+            FL.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+
+            telemetry.addData("Front Right", 0.3);
+            telemetry.update();
+            FR.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+
+            telemetry.addData("Back Left", 0.3);
+            telemetry.update();
+            BL.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+
+            telemetry.addData("Back Right", 0.3);
+            telemetry.update();
+            BR.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+        }
 }
