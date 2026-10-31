@@ -157,8 +157,8 @@ public class FarBlueAuto extends LinearOpMode{
         configurePinpoint();
 
         // Set startX, startY, startTheta to use for reference later
-        setStartX(40);
-        setStartY(8);
+        setStartX(8);
+        setStartY(40);
         setStartTheta(0); // Has to be zero
 
         // X and Y are switched: (1,0) = (0,1)
@@ -182,30 +182,29 @@ public class FarBlueAuto extends LinearOpMode{
         run();
         //LAUNCHER.setVelocity(-launcherVelocity);
 
+        // testRun();
 
-
-        while(opModeIsActive()){
-            //update pinpoint sensor
-            pinpoint.update();
-            // Get current position and heading
-            Pose2D robotCurPos = pinpoint.getPosition();
-            // Update robot variables
-            setRobotX(robotCurPos.getX(DistanceUnit.INCH));
-            setRobotY(robotCurPos.getY(DistanceUnit.INCH));
-            setRobotTheta(robotCurPos.getHeading(AngleUnit.DEGREES));
-            //display robot Telemtry
-            telemetry.addData("Robot X (in)", getRobotX());
-            telemetry.addData("Robot Y (in)", getRobotY());
-            telemetry.addData("Heading (deg)", getRobotTheta());
-
-            telemetry.addData("Pinpoint Status",
-                                pinpoint.getDeviceStatus());
-            telemetry.update();
-
-            sleep(50);
-
-        }
     }
+
+public void testRun(){
+    while(opModeIsActive()){
+        double robotVelocity = 0;
+        double aTanVal = 0;
+        pinpoint.update();
+        Pose2D robotCurPos = pinpoint.getPosition();
+        robotVelocity = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES); //can use for PID
+
+        //Update robot current position
+        setRobotX(robotCurPos.getX(DistanceUnit.INCH));
+        setRobotY(robotCurPos.getY(DistanceUnit.INCH));
+        setRobotTheta(robotCurPos.getHeading(AngleUnit.DEGREES));
+
+        //Output critical values to track robot performance
+        grandTelemetryFunction(getDistRemaining(), aTanVal, robotCurPos, robotVelocity);
+
+        sleep(50);
+    }
+}
 
     public void run(){
 
