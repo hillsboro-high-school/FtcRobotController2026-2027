@@ -66,23 +66,23 @@ public class FarBlueAuto extends LinearOpMode{
 
     // rotation and translation vars
     double translationVectorAngle;
-    double distError;
-    double rotError;  // Rotation Error
+    double DistRemaining;
+    double RotRemaining;  // Rotation Error
     double rotBias; // Const for translation
 
     public double getTranslationVectorAngle(){return translationVectorAngle;}
-    public double getRotError(){return rotError;}
+    public double getRotRemaining(){return RotRemaining;}
     public double getRotBias(){return rotBias;}
-    public double getDistError(){return distError;}
+    public double getDistRemaining(){return DistRemaining;}
 
 
     public void setTranslationVectorAngle(double angle) {translationVectorAngle = angle;} // Subtracting PI/2 gives unit circle measurements
-    public void setRotError(double rotation) {
-        rotError = rotation;
+    public void setRotRemaining(double rotation) {
+        RotRemaining = rotation;
     }
     public void setRotBias(double rotationBias){rotBias = rotationBias;}
-    public void setDistError(double distance) {
-        distError = distance;
+    public void setDistRemaining(double distance) {
+        DistRemaining = distance;
     }
 
 
@@ -157,8 +157,8 @@ public class FarBlueAuto extends LinearOpMode{
         configurePinpoint();
 
         // Set startX, startY, startTheta to use for reference later
-        setStartX(0 * halfTileMat);
-        setStartY(0 * halfTileMat);
+        setStartX(40);
+        setStartY(8);
         setStartTheta(0); // Has to be zero
 
         // X and Y are switched: (1,0) = (0,1)
@@ -212,37 +212,38 @@ public class FarBlueAuto extends LinearOpMode{
         // Create a list of all coords you want the robot to move to during auto
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
-        append(coordinates, 2 * halfTileMat,2 * halfTileMat,0, 0);
 
-        for(int loop=0; loop<coordinates.size(); loop++) {
+        append(coordinates, 24,24,0,0);
+
+        for(int index=0; index<coordinates.size(); index++) {
 
             // using a local robot x/y for each loop
             double robotVelocity = 0; // could make global
 
             // X and Y are swapped -> EX: (1,0) = (0,1)
-            setTargetX(coordinates.get(loop).get(0));  // 2*halfTileMat = One full tile mat. Cord is based on half tile mats to avoid anything weird
-            setTargetY(-coordinates.get(loop).get(1));
-            setTargetTheta(coordinates.get(loop).get(2));
+            setTargetX(coordinates.get(index).get(0));  // 2*halfTileMat = One full tile mat. Cord is based on half tile mats to avoid anything weird
+            setTargetY(-coordinates.get(index).get(1)); // Flips y coordinate to match field/graphing coordinates
+            setTargetTheta(coordinates.get(index).get(2));
 
 
             //math.sqrt = sqaure root
             //math.pow(x, y) = x^y
             //Setting initial errors to seed while loop with good values
             //pythagorean theorem
-            setDistError(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
-            setRotError(getRobotTheta()-getTargetTheta());
+            setDistRemaining(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
+            setRotRemaining(getRobotTheta()-getTargetTheta());
 
-            double distErrorThreshold = 0.5; // Inches
-            double rotErrorThreshold = 1; // Degrees
+            double DistRemainingThreshold = 0.5; // Inches
+            double RotRemainingThreshold = 1; // Degrees
 
             //INTAKE.setPower(-1);
             //LAUNCHER.setVelocity(launcherVelocity);
 
 
-            while (getDistError() > distErrorThreshold || Math.abs(getRotError()) > rotErrorThreshold) { //Check for completion condition in translation and rotation
+            while (getDistRemaining() > DistRemainingThreshold || Math.abs(getRotRemaining()) > RotRemainingThreshold) { //Check for completion condition in translation and rotation
                 //perform distance/angle error calculation
-                setDistError(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
-                setRotError(getRobotTheta()-getTargetTheta());
+                setDistRemaining(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
+                setRotRemaining(getRobotTheta()-getTargetTheta());
 
                 //Perform field vector calculation
                 // Test by hard coding angles and seeing which way the robot moves
@@ -263,8 +264,8 @@ public class FarBlueAuto extends LinearOpMode{
                 // Keep the PID above threshold to avoid a zero
                 double thresholdPID = 0.3;
 
-                p = p * (1-rollingAvgP) + getDistError() * rollingAvgP;
-                d = d * (1-rollingAvgD) + robotVelocity/getDistError() * rollingAvgD;
+                p = p * (1-rollingAvgP) + getDistRemaining() * rollingAvgP;
+                d = d * (1-rollingAvgD) + robotVelocity/getDistRemaining() * rollingAvgD;
                 if (robotVelocity < thresholdI){i = i + 1/Math.abs(robotVelocity);}
 
                 double translationPID = Kp*p-Kd*d+Ki*i;
@@ -289,12 +290,12 @@ public class FarBlueAuto extends LinearOpMode{
                 setRobotTheta(robotCurPos.getHeading(AngleUnit.DEGREES));
 
                 //Output critical values to track robot performance
-                grandTelemetryFunction(getDistError(), aTanVal, robotCurPos, robotVelocity);
+                grandTelemetryFunction(getDistRemaining(), aTanVal, robotCurPos, robotVelocity);
 
             }
             resetMotorVarPower();
             setPowerToZero();
-            //shoot(coordinates.get(loop).get(3));
+            //shoot(coordinates.get(index).get(3));
             //TRANSFER.setPower(0);
         }
         //INTAKE.setPower(0);
@@ -314,7 +315,7 @@ public class FarBlueAuto extends LinearOpMode{
         // setting rot error and bias to zero so it isn't in effect
 
         setRotBias(0.1); //Needs to be a constant > 0
-        double rotationControl = getRotError() * getRotBias() * rotPID; //This calculates final rotational power
+        double rotationControl = getRotRemaining() * getRotBias() * rotPID; //This calculates final rotational power
 
         telemetry.addData("Rotation Control", rotationControl);
 
@@ -379,7 +380,7 @@ public class FarBlueAuto extends LinearOpMode{
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        pinpoint.setOffsets(-95, -150, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+        pinpoint.setOffsets(-95, -146, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
 //5,-95
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -422,7 +423,7 @@ public class FarBlueAuto extends LinearOpMode{
 
 
     // Writes out ALL data onto screen
-    public void grandTelemetryFunction(double distError, double aTanVal, Pose2D pose2D, double robotVel){
+    public void grandTelemetryFunction(double distRemaining, double aTanVal, Pose2D pose2D, double robotVel){
         telemetry.addData("Starting X", getStartX());
         telemetry.addData("Starting Y", getStartY());
         telemetry.addData("Starting Theta", getStartTheta());
@@ -435,11 +436,11 @@ public class FarBlueAuto extends LinearOpMode{
         telemetry.addData("TargetX", getTargetX());
         telemetry.addData("TargetY", getTargetY());
         telemetry.addData("TargetTheta", getTargetTheta());
-        telemetry.addData("rotError", getRotError());
+        telemetry.addData("RotRemaining", getRotRemaining());
         telemetry.addData("RobotX", getRobotX());
         telemetry.addData("RobotY", getRobotY());
         telemetry.addData("RobotTheta", getRobotTheta());
-        telemetry.addData("Dist error", distError);
+        telemetry.addData("DistRemaining", distRemaining);
         telemetry.addData("arcTangent Value", Math.toDegrees(aTanVal));
         telemetry.addData("Translation angle", Math.toDegrees(getTranslationVectorAngle()));
 
