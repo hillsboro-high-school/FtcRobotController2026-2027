@@ -159,7 +159,7 @@ public class FarBlueAuto extends LinearOpMode{
         // Set startX, startY, startTheta to use for reference later
         setStartX(64);
         setStartY(12);
-        setStartTheta(-90); // Has to be zero
+        setStartTheta(-90);
 
         // X and Y are switched: (1,0) = (0,1)
         setRobotX(getStartX());
@@ -212,8 +212,9 @@ public void testRun(){
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
 
+        append(coordinates, 2 * halfTileMat,4 * halfTileMat,0,0);
         append(coordinates, 2 * halfTileMat,4 * halfTileMat,-90,0);
-        // append(coordinates, 4 * halfTileMat,11 * halfTileMat,0,0);
+        append(coordinates, 2 * halfTileMat,4 * halfTileMat,90,0);
 
         for(int index=0; index<coordinates.size(); index++) {
 
@@ -234,7 +235,7 @@ public void testRun(){
             setRotRemaining(getRobotTheta()-getTargetTheta());
 
             double DistRemainingThreshold = 0.5; // Inches
-            double RotRemainingThreshold = 1; // Degrees
+            double RotRemainingThreshold = 10; // Degrees
 
             //INTAKE.setPower(-1);
             //LAUNCHER.setVelocity(launcherVelocity);
@@ -295,7 +296,6 @@ public void testRun(){
             }
             resetMotorVarPower();
             setPowerToZero();
-            sleep(5000);
             //shoot(coordinates.get(index).get(3));
             //TRANSFER.setPower(0);
         }
