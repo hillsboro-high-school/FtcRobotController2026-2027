@@ -171,10 +171,10 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             */
 
             // Send calculated power to wheels
-            frontLeftDrive.setPower(frontLeftPower/1.5);
-            frontRightDrive.setPower(frontRightPower/1.5);
-            backLeftDrive.setPower(backLeftPower/1.5);
-            backRightDrive.setPower(backRightPower/1.5);
+            frontLeftDrive.setPower(frontLeftPower);
+            frontRightDrive.setPower(frontRightPower);
+            backLeftDrive.setPower(backLeftPower);
+            backRightDrive.setPower(backRightPower);
             elv.setPower(elvpower);
 
             // Show the elapsed game time and wheel power.

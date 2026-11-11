@@ -1,21 +1,20 @@
 package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-
-@Autonomous(name="CloseBlueAuto", group="Linear OpMode")
+@Autonomous(name="FarBlueAuto", group="Linear OpMode")
 
 public class CloseBlueAuto extends LinearOpMode{
 
@@ -25,7 +24,7 @@ public class CloseBlueAuto extends LinearOpMode{
     private DcMotor BR = null;
     private DcMotor INTAKE = null;
     private DcMotor TRANSFER = null;
-    //private DcMotorEx LAUNCHER = null;
+    private DcMotorEx LAUNCHER = null;
 
 
     // Initial Starting Location of the Robot
@@ -66,23 +65,23 @@ public class CloseBlueAuto extends LinearOpMode{
 
     // rotation and translation vars
     double translationVectorAngle;
-    double distError;
-    double rotError;  // Rotation Error
+    double DistRemaining;
+    double RotRemaining;  // Rotation Error
     double rotBias; // Const for translation
 
     public double getTranslationVectorAngle(){return translationVectorAngle;}
-    public double getRotError(){return rotError;}
+    public double getRotRemaining(){return RotRemaining;}
     public double getRotBias(){return rotBias;}
-    public double getDistError(){return distError;}
+    public double getDistRemaining(){return DistRemaining;}
 
 
     public void setTranslationVectorAngle(double angle) {translationVectorAngle = angle;} // Subtracting PI/2 gives unit circle measurements
-    public void setRotError(double rotation) {
-        rotError = rotation;
+    public void setRotRemaining(double rotation) {
+        RotRemaining = rotation;
     }
     public void setRotBias(double rotationBias){rotBias = rotationBias;}
-    public void setDistError(double distance) {
-        distError = distance;
+    public void setDistRemaining(double distance) {
+        DistRemaining = distance;
     }
 
 
@@ -123,7 +122,7 @@ public class CloseBlueAuto extends LinearOpMode{
     // Pinpoint Defined
     GoBildaPinpointDriver pinpoint;
 
-    //double launcherVelocity = -1250;
+    //double launcherVelocity = -1550;
 
 
     @Override
@@ -142,15 +141,13 @@ public class CloseBlueAuto extends LinearOpMode{
         BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Map Misc
-        /*LAUNCHER = hardwareMap.get(DcMotorEx.class, "launcher");
-        INTAKE = hardwareMap.get(DcMotor.class, "intakeMotor");
-        TRANSFER = hardwareMap.get(DcMotor.class, "transfer");
+        //LAUNCHER = hardwareMap.get(DcMotorEx.class, "launcher");
+        //INTAKE = hardwareMap.get(DcMotor.class, "intakeMotor");
+        //TRANSFER = hardwareMap.get(DcMotor.class, "transfer");
 
-        LAUNCHER.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //LAUNCHER.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //LAUNCHER.setVelocityPIDFCoefficients(30.0, 0, 1.0, 12.0);//P is correction of the motor F is to hold the speed
 
-        LAUNCHER.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LAUNCHER.setVelocityPIDFCoefficients(30.0, 0, 1.0, 12.0);//P is correction of the motor F is to hold the speed
-*/
 
         // Map pinpoint
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
@@ -159,9 +156,9 @@ public class CloseBlueAuto extends LinearOpMode{
         configurePinpoint();
 
         // Set startX, startY, startTheta to use for reference later
-        setStartX(10 * halfTileMat);
-        setStartY(2 * halfTileMat);
-        setStartTheta(0); // Has to be zero
+        setStartX(-64);
+        setStartY(56);
+        setStartTheta(0);
 
         // X and Y are switched: (1,0) = (0,1)
         setRobotX(getStartX());
@@ -179,63 +176,72 @@ public class CloseBlueAuto extends LinearOpMode{
 
         // Wait for user to press run on DS
         waitForStart();
-
+        //testpinpoint();
         // Calls main run fxn
         run();
+        //LAUNCHER.setVelocity(-launcherVelocity);
+
+        // testRun();
 
     }
+
+public void testRun(){
+    while(opModeIsActive()){
+        double robotVelocity = 0;
+        double aTanVal = 0;
+        pinpoint.update();
+        Pose2D robotCurPos = pinpoint.getPosition();
+        robotVelocity = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES); //can use for PID
+
+        //Update robot current position
+        setRobotX(robotCurPos.getX(DistanceUnit.INCH));
+        setRobotY(robotCurPos.getY(DistanceUnit.INCH));
+        setRobotTheta(robotCurPos.getHeading(AngleUnit.DEGREES));
+
+        //Output critical values to track robot performance
+        grandTelemetryFunction(getDistRemaining(), aTanVal, robotCurPos, robotVelocity);
+
+        sleep(50);
+    }
+}
 
     public void run(){
 
         // Create a list of all coords you want the robot to move to during auto
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
-        append(coordinates, 7 * halfTileMat,5 * halfTileMat,50, 1);
-        append(coordinates, 7 * halfTileMat, 1.75*halfTileMat,90, 0);
-        append(coordinates, 7 * halfTileMat, 5 * halfTileMat,50, 1);
-        append(coordinates, 5 * halfTileMat, 4 * halfTileMat,90, 0);
-        append(coordinates, 4.5 * halfTileMat, halfTileMat,90, 0);
-        append(coordinates, 7 * halfTileMat, 5 * halfTileMat,50, 1);
-        append(coordinates, 6 * halfTileMat, 4 * halfTileMat,90, 0);
 
-        for(int loop=0; loop<coordinates.size(); loop++) {
+        append(coordinates, -4 * halfTileMat,5 * halfTileMat,0,0);
+
+        for(int index=0; index<coordinates.size(); index++) {
 
             // using a local robot x/y for each loop
             double robotVelocity = 0; // could make global
 
             // X and Y are swapped -> EX: (1,0) = (0,1)
-            setTargetX(coordinates.get(loop).get(0));  // 2*halfTileMat = One full tile mat. Cord is based on half tile mats to avoid anything weird
-            setTargetY(-coordinates.get(loop).get(1));
-            setTargetTheta(coordinates.get(loop).get(2));
-
-            // PID Vars
-            /*
-            double p = 1;
-            double i = 0;
-            double d = 1;
-
-            double Kp = 1.3;
-            double Ki = 0.2;
-            double Kd = 0.9;
-
-             */
+            setTargetX(coordinates.get(index).get(0));  // 2*halfTileMat = One full tile mat. Cord is based on half tile mats to avoid anything weird
+            setTargetY(coordinates.get(index).get(1)); // Flips y coordinate to match field/graphing coordinates
+            setTargetTheta(coordinates.get(index).get(2));
 
 
+            //math.sqrt = sqaure root
+            //math.pow(x, y) = x^y
             //Setting initial errors to seed while loop with good values
-            setDistError(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
-            setRotError(getRobotTheta()-getTargetTheta());
+            //pythagorean theorem
+            setDistRemaining(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
+            setRotRemaining(getRobotTheta()-getTargetTheta());
 
-            double distErrorThreshold = 0.5; // Inches
-            double rotErrorThreshold = 1; // Degrees
+            double DistRemainingThreshold = 0.5; // Inches
+            double RotRemainingThreshold = 10; // Degrees
 
             //INTAKE.setPower(-1);
-           // LAUNCHER.setVelocity(launcherVelocity);
+            //LAUNCHER.setVelocity(launcherVelocity);
 
 
-            while (getDistError() > distErrorThreshold || Math.abs(getRotError()) > rotErrorThreshold) { //Check for completion condition in translation and rotation
+            while (getDistRemaining() > DistRemainingThreshold || Math.abs(getRotRemaining()) > RotRemainingThreshold) { //Check for completion condition in translation and rotation
                 //perform distance/angle error calculation
-                setDistError(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
-                setRotError(getRobotTheta()-getTargetTheta());
+                setDistRemaining(Math.sqrt(Math.pow((getTargetX() - getRobotX()), 2) + Math.pow((getTargetY() - getRobotY()), 2)));
+                setRotRemaining(getRobotTheta()-getTargetTheta());
 
                 //Perform field vector calculation
                 // Test by hard coding angles and seeing which way the robot moves
@@ -256,8 +262,8 @@ public class CloseBlueAuto extends LinearOpMode{
                 // Keep the PID above threshold to avoid a zero
                 double thresholdPID = 0.3;
 
-                p = p * (1-rollingAvgP) + getDistError() * rollingAvgP;
-                d = d * (1-rollingAvgD) + robotVelocity/getDistError() * rollingAvgD;
+                p = p * (1-rollingAvgP) + getDistRemaining() * rollingAvgP;
+                d = d * (1-rollingAvgD) + robotVelocity/getDistRemaining() * rollingAvgD;
                 if (robotVelocity < thresholdI){i = i + 1/Math.abs(robotVelocity);}
 
                 double translationPID = Kp*p-Kd*d+Ki*i;
@@ -267,14 +273,14 @@ public class CloseBlueAuto extends LinearOpMode{
 
                 setRelativePower(1, 1); //This function calculates relative motor powers using filed vector and rotational error
 
-                //normalizePower(); //This function normalizes motor power to avoid any power being >1
+                normalizePower(); //This function normalizes motor power to avoid any power being >1
 
                 setPower();  //Set motor powers (setting to zero can help debug, use setPowerToZero fxn)
 
                 //Update pinpoint and query robot current position and velocity
                 pinpoint.update();
                 Pose2D robotCurPos = pinpoint.getPosition();
-                robotVelocity = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES);
+                robotVelocity = pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.DEGREES); //can use for PID
 
                 //Update robot current position
                 setRobotX(robotCurPos.getX(DistanceUnit.INCH));
@@ -282,51 +288,32 @@ public class CloseBlueAuto extends LinearOpMode{
                 setRobotTheta(robotCurPos.getHeading(AngleUnit.DEGREES));
 
                 //Output critical values to track robot performance
-                grandTelemetryFunction(getDistError(), aTanVal, robotCurPos, robotVelocity);
-                /*
-                if(getDistError() < 1){
-                    TRANSFER.setPower(-0.5);
-                }else{
-                    TRANSFER.setPower(0);
-                }
+                grandTelemetryFunction(getDistRemaining(), aTanVal, robotCurPos, robotVelocity);
 
-
-                 */
             }
             resetMotorVarPower();
             setPowerToZero();
-            //shoot(coordinates.get(loop).get(3));
-           // TRANSFER.setPower(0);
+            //shoot(coordinates.get(index).get(3));
+            //TRANSFER.setPower(0);
         }
-      //  INTAKE.setPower(0);
-
-       /* for(int i = 0; i < 100; i++){
-            sleep(10);
-            if(LAUNCHER.getVelocity() < -100){ //if you want it to stop slowing down sooner increase this number
-                LAUNCHER.setVelocity(2995); //if you want it to slow down faster increase this number
-
-            } else{
-                LAUNCHER.setPower(0);//power is zero if its not spinning in shooting direction
-
-            }
-        }
-
-        */
+        //INTAKE.setPower(0);
+        //LAUNCHER.setVelocity(-launcherVelocity);
+        //LAUNCHER.setPower(0);
     }
-
 
     public void setRelativePower(double translationPID, double rotPID){
         //The fxns with "translationsAngle..." are just get and set angle
         // Math calculations for easier reading
         //double testAngle = 0;
-        double cosVal = Math.cos(getTranslationVectorAngle()) / Math.sqrt(2);
+        //make sure translation vector angle is in radians
+        double cosVal = Math.cos(getTranslationVectorAngle()) / Math.sqrt(2); // Corrects x value for horizontal mecanum wheel movement
         double sinVal = Math.sin(getTranslationVectorAngle());
 
         // multiples rotation error, rotation bias, and rotations pid for easier reading
         // setting rot error and bias to zero so it isn't in effect
 
         setRotBias(0.1); //Needs to be a constant > 0
-        double rotationControl = getRotError() * getRotBias() * rotPID; //This calculates final rotational power
+        double rotationControl = getRotRemaining() * getRotBias() * rotPID; //This calculates final rotational power
 
         telemetry.addData("Rotation Control", rotationControl);
 
@@ -337,8 +324,8 @@ public class CloseBlueAuto extends LinearOpMode{
         setBR_power ((-cosVal + sinVal)*translationPID + rotationControl);
     }
 
-    /*public void normalizePower(){
-        double maxMotorThreshold = 0.75; // 50% motor power
+    public void normalizePower(){
+        double maxMotorThreshold = 0.50; // 50% motor power
         double maxMotor = Math.abs(Math.max(Math.max(Math.abs(getFR_power()), Math.abs(getFL_power())), Math.max(Math.abs(getBL_power()), Math.abs(getBR_power()))));
         if (maxMotor > maxMotorThreshold){
             setFL_power(getFL_power() / (maxMotor/maxMotorThreshold));
@@ -348,8 +335,6 @@ public class CloseBlueAuto extends LinearOpMode{
         }
     }
 
-
-     */
     public void setPower(){
         FL.setPower(getFL_power());
         FR.setPower(getFR_power());
@@ -363,8 +348,8 @@ public class CloseBlueAuto extends LinearOpMode{
         BL.setPower(0);
         BR.setPower(0);
     }
-    /*
-    public void shoot(double shoot){
+
+    /*public void shoot(double shoot){
         double endTime = getRuntime() + 4;
         if (shoot == 1){
             LAUNCHER.setVelocity(launcherVelocity);
@@ -380,10 +365,8 @@ public class CloseBlueAuto extends LinearOpMode{
 
             }
         }
-    }
+    }*/
 
-
-     */
     // Configure settings for Pinpoint
     public void configurePinpoint(){
         /*
@@ -395,8 +378,8 @@ public class CloseBlueAuto extends LinearOpMode{
          *  The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is.
          *  Forward of center is a positive number, backwards is a negative number.
          */
-        pinpoint.setOffsets(-95, 5, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
-
+        pinpoint.setOffsets(-95, -146, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
+//5,-95
         /*
          * Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
          * the goBILDA_SWINGARM_POD, or the goBILDA_4_BAR_POD.
@@ -428,8 +411,8 @@ public class CloseBlueAuto extends LinearOpMode{
     private List<List<Double>> append(List<List<Double>> start, double xCord, double yCord, double theta, double shoot){
         List<Double> newlistpoint = new ArrayList<Double>();
 
-        newlistpoint.add(xCord-getStartX());
-        newlistpoint.add(yCord-getStartY());
+        newlistpoint.add(xCord);
+        newlistpoint.add(yCord);
         newlistpoint.add(theta);
         newlistpoint.add(shoot);
         start.add(newlistpoint);
@@ -438,7 +421,7 @@ public class CloseBlueAuto extends LinearOpMode{
 
 
     // Writes out ALL data onto screen
-    public void grandTelemetryFunction(double distError, double aTanVal, Pose2D pose2D, double robotVel){
+    public void grandTelemetryFunction(double distRemaining, double aTanVal, Pose2D pose2D, double robotVel){
         telemetry.addData("Starting X", getStartX());
         telemetry.addData("Starting Y", getStartY());
         telemetry.addData("Starting Theta", getStartTheta());
@@ -451,23 +434,51 @@ public class CloseBlueAuto extends LinearOpMode{
         telemetry.addData("TargetX", getTargetX());
         telemetry.addData("TargetY", getTargetY());
         telemetry.addData("TargetTheta", getTargetTheta());
-        telemetry.addData("rotError", getRotError());
+        telemetry.addData("RotRemaining", getRotRemaining());
         telemetry.addData("RobotX", getRobotX());
         telemetry.addData("RobotY", getRobotY());
         telemetry.addData("RobotTheta", getRobotTheta());
-        telemetry.addData("Dist error", distError);
+        telemetry.addData("DistRemaining", distRemaining);
         telemetry.addData("arcTangent Value", Math.toDegrees(aTanVal));
         telemetry.addData("Translation angle", Math.toDegrees(getTranslationVectorAngle()));
 
-      //  telemetry.addData("Launcher VEL", LAUNCHER.getVelocity());
-        /*
+        //telemetry.addData("Launcher VEL", LAUNCHER.getVelocity());
+
         telemetry.addData("FR_Power", getFR_power());
         telemetry.addData("FL_Power", getFL_power());
         telemetry.addData("BL_Power", getBL_power());
         telemetry.addData("BR_Power", getBR_power());
 
-         */
+
         telemetry.update();
     }
 
+    public void testpinpoint()
+        {
+            //TEST ONLY
+            // Checking if the motors are attached the way the thought they would be
+            telemetry.addData("Front Left", 0.3);
+            telemetry.update();
+            FL.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+
+            telemetry.addData("Front Right", 0.3);
+            telemetry.update();
+            FR.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+
+            telemetry.addData("Back Left", 0.3);
+            telemetry.update();
+            BL.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+
+            telemetry.addData("Back Right", 0.3);
+            telemetry.update();
+            BR.setPower(0.3);
+            sleep(1000);
+            setPowerToZero();
+        }
 }
