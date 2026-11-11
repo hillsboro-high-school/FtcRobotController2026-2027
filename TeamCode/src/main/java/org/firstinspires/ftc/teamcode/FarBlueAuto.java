@@ -157,9 +157,9 @@ public class FarBlueAuto extends LinearOpMode{
         configurePinpoint();
 
         // Set startX, startY, startTheta to use for reference later
-        setStartX(8);
-        setStartY(40);
-        setStartTheta(0); // Has to be zero
+        setStartX(64);
+        setStartY(12);
+        setStartTheta(-90);
 
         // X and Y are switched: (1,0) = (0,1)
         setRobotX(getStartX());
@@ -212,7 +212,8 @@ public void testRun(){
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
 
-        append(coordinates, 24,24,0,0);
+        append(coordinates, 2 * halfTileMat,4 * halfTileMat,0,0);
+        append(coordinates, -2 * halfTileMat,5 * halfTileMat,0,0);
 
         for(int index=0; index<coordinates.size(); index++) {
 
@@ -221,7 +222,7 @@ public void testRun(){
 
             // X and Y are swapped -> EX: (1,0) = (0,1)
             setTargetX(coordinates.get(index).get(0));  // 2*halfTileMat = One full tile mat. Cord is based on half tile mats to avoid anything weird
-            setTargetY(-coordinates.get(index).get(1)); // Flips y coordinate to match field/graphing coordinates
+            setTargetY(coordinates.get(index).get(1)); // Flips y coordinate to match field/graphing coordinates
             setTargetTheta(coordinates.get(index).get(2));
 
 
@@ -233,7 +234,7 @@ public void testRun(){
             setRotRemaining(getRobotTheta()-getTargetTheta());
 
             double DistRemainingThreshold = 0.5; // Inches
-            double RotRemainingThreshold = 1; // Degrees
+            double RotRemainingThreshold = 10; // Degrees
 
             //INTAKE.setPower(-1);
             //LAUNCHER.setVelocity(launcherVelocity);
@@ -307,7 +308,7 @@ public void testRun(){
         // Math calculations for easier reading
         //double testAngle = 0;
         //make sure translation vector angle is in radians
-        double cosVal = Math.cos(getTranslationVectorAngle()) / Math.sqrt(2);
+        double cosVal = Math.cos(getTranslationVectorAngle()) / Math.sqrt(2); // Corrects x value for horizontal mecanum wheel movement
         double sinVal = Math.sin(getTranslationVectorAngle());
 
         // multiples rotation error, rotation bias, and rotations pid for easier reading
@@ -412,8 +413,8 @@ public void testRun(){
     private List<List<Double>> append(List<List<Double>> start, double xCord, double yCord, double theta, double shoot){
         List<Double> newlistpoint = new ArrayList<Double>();
 
-        newlistpoint.add(xCord-getStartX());
-        newlistpoint.add(yCord-getStartY());
+        newlistpoint.add(xCord);
+        newlistpoint.add(yCord);
         newlistpoint.add(theta);
         newlistpoint.add(shoot);
         start.add(newlistpoint);
