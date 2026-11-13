@@ -212,8 +212,8 @@ public void testRun(){
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
 
-        append(coordinates, 2 * halfTileMat,4 * halfTileMat,0,0);
-        append(coordinates, -2 * halfTileMat,5 * halfTileMat,0,0);
+        append(coordinates, 2 * halfTileMat,2 * halfTileMat,0,0);
+        append(coordinates, 3 * halfTileMat,1 * halfTileMat,0,0);
 
         for(int index=0; index<coordinates.size(); index++) {
 

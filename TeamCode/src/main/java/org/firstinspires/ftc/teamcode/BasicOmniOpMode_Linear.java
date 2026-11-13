@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -78,6 +79,9 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
     private DcMotor intake = null;
     private DcMotor elv = null;
     private DcMotor storage = null;
+    private DcMotor launcher = null;
+    private CRServo frontServo = null;
+    private CRServo backServo = null;
 
     @Override
     public void runOpMode() {
@@ -88,9 +92,13 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
         backLeftDrive = hardwareMap.get(DcMotor.class, "back_left_drive");
         frontRightDrive = hardwareMap.get(DcMotor.class, "front_right_drive");
         backRightDrive = hardwareMap.get(DcMotor.class, "back_right_drive");
+
         intake = hardwareMap.get(DcMotor.class, "intake");
         elv = hardwareMap.get(DcMotor.class, "elevator");
         storage = hardwareMap.get(DcMotor.class, "storage");
+        launcher = hardwareMap.get(DcMotor.class, "launcher");
+        frontServo = hardwareMap.get(CRServo.class, "frontMini");
+        backServo = hardwareMap.get(CRServo.class, "backMini");
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -117,6 +125,8 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
         double intakepower = 0;
         boolean intakeA = false;
         double elvpower = 0;
+        double frontSerpower = 0;
+        double backSerpower = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -128,9 +138,10 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
             double lateral =  gamepad1.left_stick_x;
             double yaw     =  gamepad1.right_stick_x +0;
+
             boolean elvup = gamepad1.right_bumper;
             boolean elvdown = gamepad1.left_bumper;
-            double storagedown = gamepad1.left_trigger;
+            double storageTrigger = gamepad1.left_trigger;
 
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
@@ -140,7 +151,7 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             double backLeftPower   = axial - lateral + yaw;
             double backRightPower  = axial + lateral - yaw;
 
-            double storagePower = storagedown / 0.4;
+            double storagePower = storageTrigger / 0.4;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -155,6 +166,7 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
                 backRightPower  /= max;
             }
 
+            // intake controls
             if (gamepad1.b) {
                 intakeA = false;
                 intakepower = -0.3;
@@ -168,14 +180,22 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
                 intakepower = 0;
             }
 
+            // elevator controls
             if (elvup) {
                 elvpower = 0.5;
-            }
-            else if (elvdown) {
-                elvpower = 0.1;
-            }
-            else{
+            } else if (elvdown) {
+                elvpower = 0;
+            } else {
                 elvpower = 0.28;
+            }
+
+            // launcher storage controls
+            if (gamepad1.y) {
+                frontSerpower = 0.5;
+                backSerpower = 0.5;
+            } else {
+                frontSerpower = 0;
+                backSerpower = 0;
             }
 
             // This is test code:
@@ -204,6 +224,8 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             intake.setPower(intakepower);
             elv.setPower(elvpower);
             storage.setPower(storagePower);
+            frontServo.setPower(frontSerpower);
+            backServo.setPower(backSerpower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());

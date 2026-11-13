@@ -14,7 +14,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name="FarBlueAuto", group="Linear OpMode")
+@Autonomous(name="CloseBlueAuto", group="Linear OpMode")
 
 public class CloseBlueAuto extends LinearOpMode{
 
