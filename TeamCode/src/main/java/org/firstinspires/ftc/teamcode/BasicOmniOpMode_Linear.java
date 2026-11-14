@@ -151,8 +151,6 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             double backLeftPower   = axial - lateral + yaw;
             double backRightPower  = axial + lateral - yaw;
 
-            double storagePower = storageTrigger / 0.4;
-
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
             max = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
@@ -173,7 +171,6 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             } else if (gamepad1.aWasPressed()) {
                 intakeA = !intakeA;
             }
-
             if (intakeA && !gamepad1.b) {
                 intakepower = 0.8;
             } else if (!intakeA && !gamepad1.b) {
@@ -188,14 +185,21 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             } else {
                 elvpower = 0.28;
             }
+            // elevator storage control
+            double storagePower = storageTrigger * -0.5;
 
-            // launcher storage controls
+            // launcher storage control
             if (gamepad1.y) {
-                frontSerpower = 0.5;
-                backSerpower = 0.5;
+                frontSerpower = -0.5;
+                backSerpower = -0.5;
             } else {
                 frontSerpower = 0;
                 backSerpower = 0;
+            }
+            // launcher control
+            double launcherPower = gamepad1.right_trigger;
+            if (launcherPower > 0.65) {
+                launcherPower = 0.65;
             }
 
             // This is test code:
@@ -226,6 +230,7 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             storage.setPower(storagePower);
             frontServo.setPower(frontSerpower);
             backServo.setPower(backSerpower);
+            launcher.setPower(launcherPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
