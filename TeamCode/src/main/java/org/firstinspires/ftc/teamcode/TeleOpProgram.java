@@ -29,12 +29,10 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /*
@@ -67,7 +65,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Epic Basic: Omni Linear OpMode", group="Linear OpMode")
 // @Disabled
-public class BasicOmniOpMode_Linear extends LinearOpMode {
+public class TeleOpProgram extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
@@ -179,7 +177,7 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
 
             // elevator controls
             if (elvup) {
-                elvpower = 0.5;
+                elvpower = 0.8;
             } else if (elvdown) {
                 elvpower = 0;
             } else {
@@ -198,8 +196,8 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             }
             // launcher control
             double launcherPower = gamepad1.right_trigger;
-            if (launcherPower > 0.65) {
-                launcherPower = 0.65;
+            if (launcherPower > 0.63) {
+                launcherPower = 0.63;
             }
 
             // This is test code:
@@ -236,6 +234,7 @@ public class BasicOmniOpMode_Linear extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", frontLeftPower, frontRightPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", backLeftPower, backRightPower);
+            telemetry.addData("Launcher Power", "%4.2f", launcherPower);
             telemetry.update();
 
 

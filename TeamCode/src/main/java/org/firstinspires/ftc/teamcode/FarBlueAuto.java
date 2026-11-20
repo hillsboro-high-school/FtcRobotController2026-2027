@@ -212,6 +212,8 @@ public void testRun(){
         // shoot -> 1 = YES 0 = NO
         List<List<Double>> coordinates = new ArrayList<List<Double>>();
 
+        // currently x = field coordinates, y = relative coordinates
+
         append(coordinates, 4 * halfTileMat,40,0,0);
         append(coordinates, 7 * halfTileMat,42,0,0);
 
@@ -234,7 +236,7 @@ public void testRun(){
             setRotRemaining(getRobotTheta()-getTargetTheta());
 
             double DistRemainingThreshold = 0.5; // Inches
-            double RotRemainingThreshold = 10; // Degrees
+            double RotRemainingThreshold = 1; // Degrees
 
             //INTAKE.setPower(-1);
             //LAUNCHER.setVelocity(launcherVelocity);
